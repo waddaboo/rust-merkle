@@ -14,9 +14,9 @@ fn main() {
 
     println!("Process started");
 
-    let root = root(&blockstream);
+    let merkle_root = root(&blockstream);
     let elapsed = start.elapsed();
 
-    println!("Merkle root: {:?}", root);
+    println!("Merkle root: {:?}", merkle_root);
     println!("Time elapsed: {:?}", elapsed);
 }
