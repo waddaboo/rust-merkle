@@ -2,34 +2,26 @@ use std::collections::HashMap;
 
 use sha2::{Digest, Sha256};
 
+pub type Hash = [u8; 32];
+
 #[derive(Debug)]
 pub struct MerkleTree;
 
 impl MerkleTree {
-    pub fn leaf_hash(node: &[u8]) -> [u8; 32] {
+    pub fn leaf_hash(node: &[u8]) -> Hash {
         let mut hasher = Sha256::new();
         hasher.update(node);
-
-        let result = hasher.finalize();
-        let mut hash = [0; 32];
-        hash.copy_from_slice(&result[..]);
-
-        hash
+        hasher.finalize().into()
     }
 
-    pub fn parent_hash(left: &[u8], right: &[u8]) -> [u8; 32] {
+    pub fn parent_hash(left: &[u8], right: &[u8]) -> Hash {
         let mut hasher = Sha256::new();
         hasher.update(left);
         hasher.update(right);
-
-        let result = hasher.finalize();
-        let mut hash = [0; 32];
-        hash.copy_from_slice(&result[..]);
-
-        hash
+        hasher.finalize().into()
     }
 
-    pub fn foldr<F>(f: F, col: &[&[u8]]) -> Vec<u8>
+    pub fn fold_right<F>(f: F, col: &[&[u8]]) -> Vec<u8>
     where
         F: Fn(&[u8], &[u8]) -> [u8; 32],
     {
@@ -83,7 +75,7 @@ impl MerkleTree {
             }
         }
 
-        Self::foldr(Self::parent_hash, &values)
+        Self::fold_right(Self::parent_hash, &values)
     }
 
     pub fn root(stream: &Vec<Vec<u8>>) -> Vec<u8> {
@@ -133,7 +125,7 @@ mod tests {
     fn test_foldr() {
         let data = vec![b"foo", b"bar", b"doe"];
         let hashes: Vec<_> = data.iter().map(|&x| MerkleTree::leaf_hash(x)).collect();
-        let hash = MerkleTree::foldr(
+        let hash = MerkleTree::fold_right(
             MerkleTree::parent_hash,
             hashes
                 .iter()
