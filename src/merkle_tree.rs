@@ -4,7 +4,6 @@ use sha2::{Digest, Sha256};
 
 pub type Hash = [u8; 32];
 
-#[derive(Debug)]
 pub struct MerkleTree;
 
 impl MerkleTree {
@@ -91,6 +90,15 @@ impl MerkleTree {
 
         Self::finalize(map)
     }
+
+    pub fn limit(stream: &Vec<Vec<u8>>, limit: usize) -> Vec<Vec<u8>> {
+        stream.into_iter().take(limit).cloned().collect()
+    }
+
+    pub fn subroot(stream: &Vec<Vec<u8>>, index: i32) -> Vec<u8> {
+        let limit = Self::limit(stream, 1 << index);
+        Self::root(&limit)
+    }
 }
 
 #[cfg(test)]
@@ -158,5 +166,80 @@ mod tests {
                 242, 253, 221, 178, 5, 82, 130, 59, 32, 68, 5, 10, 45, 12, 146
             ]
         )
+    }
+
+    #[test]
+    fn test_limit() {
+        let stream = vec![vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9]];
+        let limited_stream = MerkleTree::limit(&stream, 2);
+        assert_eq!(limited_stream, vec![vec![1, 2, 3], vec![4, 5, 6]]);
+
+        let stream = vec![vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9]];
+        let limited_stream = MerkleTree::limit(&stream, 1);
+        assert_eq!(limited_stream, vec![vec![1, 2, 3]]);
+
+        let stream = vec![vec![1, 2, 3]];
+        let limited_stream = MerkleTree::limit(&stream, 0);
+        assert_eq!(limited_stream, Vec::<Vec<u8>>::new());
+
+        let stream = vec![];
+        let limited_stream = MerkleTree::limit(&stream, 1);
+        assert_eq!(limited_stream, Vec::<Vec<u8>>::new());
+    }
+
+    #[test]
+    fn test_subroot() {
+        let data = vec![b"foo".to_vec()];
+        let subroot = MerkleTree::subroot(&data, 0);
+        assert_eq!(
+            subroot,
+            [
+                44, 38, 180, 107, 104, 255, 198, 143, 249, 155, 69, 60, 29, 48, 65, 52, 19, 66, 45,
+                112, 100, 131, 191, 160, 249, 138, 94, 136, 98, 102, 231, 174
+            ]
+        );
+
+        let data = vec![b"foo".to_vec(), b"bar".to_vec(), b"doe".to_vec()];
+        let subroot = MerkleTree::subroot(&data, 1);
+        assert_eq!(
+            subroot,
+            [
+                146, 71, 80, 4, 231, 15, 65, 185, 71, 80, 244, 167, 123, 247, 180, 48, 85, 17, 19,
+                178, 93, 61, 87, 22, 158, 173, 202, 86, 146, 187, 4, 61
+            ]
+        );
+
+        let data = vec![
+            b"foo1".to_vec(),
+            b"bar1".to_vec(),
+            b"doe1".to_vec(),
+            b"baz1".to_vec(),
+            b"qux1".to_vec(),
+        ];
+        let subroot = MerkleTree::subroot(&data, 3);
+        assert_eq!(
+            subroot,
+            [
+                229, 152, 212, 157, 135, 146, 133, 149, 239, 201, 229, 11, 111, 55, 66, 235, 133,
+                227, 254, 211, 196, 26, 38, 15, 143, 126, 64, 221, 225, 121, 22, 109
+            ]
+        );
+
+        let data = vec![
+            b"hello1".to_vec(),
+            b"world1".to_vec(),
+            b"merkle1".to_vec(),
+            b"tree1".to_vec(),
+            b"test1".to_vec(),
+            b"example1".to_vec(),
+        ];
+        let subroot = MerkleTree::subroot(&data, 4);
+        assert_eq!(
+            subroot,
+            [
+                34, 121, 29, 7, 41, 224, 224, 178, 130, 193, 209, 50, 68, 26, 149, 252, 232, 98,
+                114, 80, 229, 103, 119, 167, 73, 104, 15, 190, 223, 118, 5, 94
+            ]
+        );
     }
 }
