@@ -1,9 +1,13 @@
+mod merkle_proof;
+mod merkle_tree;
+mod util;
+
 use std::time::Instant;
 
-use rust_merkle::root;
+use crate::merkle_tree::MerkleTree;
 
 fn main() {
-    let iterations = 11223344;
+    let iterations = 4194304;
     let mut blockstream = Vec::with_capacity(iterations);
 
     for _i in 0..iterations {
@@ -14,7 +18,7 @@ fn main() {
 
     println!("Process started");
 
-    let merkle_root = root(&blockstream);
+    let merkle_root = MerkleTree::root(&blockstream);
     let elapsed = start.elapsed();
 
     println!("Merkle root: {:?}", merkle_root);
