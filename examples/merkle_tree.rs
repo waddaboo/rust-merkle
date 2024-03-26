@@ -1,6 +1,6 @@
-use rust_merkle::MerkleTree;
-
 use std::time::Instant;
+
+use rust_merkle::MerkleTree;
 
 fn main() {
     let start = Instant::now();
