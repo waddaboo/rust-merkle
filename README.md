@@ -12,53 +12,45 @@ $ cargo build --release
 
 # Run all tests
 $ cargo test
+
+# Run the examples
+$ cargo run --example merkle_tree
+$ cargo run --example merkle_proof
 ```
 
 ## Usage
 
-### Run the project
+### Merkle tree example
 
 ```bash
-$ cargo run --
+$ cargo run --example merkle_tree
 
 # Sample response
-Process started
-Merkle root: [199, 41, 129, 186, 1, 206, 150, 229, 182, 26, 227, 214, 237, 148, 207, 70, 72, 179, 19, 153, 192, 148, 136, 224, 15, 89, 175, 72, 75, 143, 37, 140]
-Time elapsed: 163.4682476s
+Root hash: [62, 46, 173, 253, 186, 61, 168, 141, 75, 120, 173, 174, 83, 231, 152, 174, 239, 123, 191, 145, 195, 31, 237, 163, 145, 241, 68, 178, 111, 252, 114, 152]
+Subroot hash: [3, 144, 88, 198, 242, 192, 203, 73, 44, 83, 59, 10, 77, 20, 239, 119, 204, 15, 120, 171, 204, 206, 213, 40, 125, 132, 161, 162, 1, 28, 251, 129]
+Subroot hash at index 2: [62, 46, 173, 253, 186, 61, 168, 141, 75, 120, 173, 174, 83, 231, 152, 174, 239, 123, 191, 145, 195, 31, 237, 163, 145, 241, 68, 178, 111, 252, 114, 152]
+Limited root hash: [246, 136, 245, 181, 133, 162, 224, 228, 184, 183, 155, 67, 76, 181, 95, 4, 69, 2, 210, 85, 124, 192, 255, 116, 4, 0, 25, 224, 119, 207, 215, 93]
+Time elapsed: 100ns
 ```
 
-### Code example
+### Merkle proof example
 
-```Rust
-use std::time::Instant;
+```bash
+$ cargo run --example merkle_proof
 
-use rust_merkle::root;
-
-fn main() {
-    let iterations = 11223344;
-    let mut blockstream = Vec::with_capacity(iterations);
-
-    for _i in 0..iterations {
-        blockstream.push(Vec::from("12"))
-    }
-
-    let start = Instant::now();
-
-    println!("Process started");
-
-    let merkle_root = root(&blockstream);
-    let elapsed = start.elapsed();
-
-    println!("Merkle root: {:?}", merkle_root);
-    println!("Time elapsed: {:?}", elapsed);
-}
+# Sample response
+Leaf exists in Merkle tree: true
+Computed root: [148, 116, 171, 150, 234, 181, 6, 118, 128, 13, 166, 250, 147, 231, 112, 159, 151, 214, 9, 224, 6, 54, 211, 103, 161, 31, 161, 121, 251, 31, 152, 244]
+Known root: [148, 116, 171, 150, 234, 181, 6, 118, 128, 13, 166, 250, 147, 231, 112, 159, 151, 214, 9, 224, 6, 54, 211, 103, 161, 31, 161, 121, 251, 31, 152, 244]
+Roots match: true
+Time elapsed: 100ns
 ```
 
 ## To-do
 
 Add the remaining proofs from the whitepaper:
 
-- Single-leaf Proofs
+- ~~Single-leaf Proofs~~
 - Single-range Proofs
 - Multi-range Proofs
 
